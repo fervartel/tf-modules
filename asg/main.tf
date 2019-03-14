@@ -26,6 +26,11 @@ resource "aws_autoscaling_group" "tf-asg" {
   lifecycle {
     create_before_destroy = true
   }
+  tag {
+    key = "Name"
+    value = "tf-instance-ASG-generated"
+    propagate_at_launch = true
+  }
 }
 # Creates the policy to Scale-out / Scale-in. It looks for an average CPU of 40% across the board
 resource "aws_autoscaling_policy" "tf-asg-policy" {

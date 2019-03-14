@@ -27,7 +27,8 @@ variable "ec2_subnet" {
   default = ""
 }
 variable "ec2_sg" {
-  default = ""
+  type="list"
+  default = []
 }
 variable "ssh_key" {
   default = "fvarela-aws"
