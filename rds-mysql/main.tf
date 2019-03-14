@@ -1,5 +1,5 @@
 resource "aws_db_instance" "tf-mysql-instance" {
-  identifier                = "tf-mysql-instance-${var.rds-env}"
+  identifier                = "tf-rds-instance-${var.rds-env}"
   allocated_storage         = "${var.rds-storage}"
   storage_type              = "${var.rds-storage_type}"
   engine                    = "${var.rds-engine}"
