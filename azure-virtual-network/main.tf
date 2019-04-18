@@ -13,11 +13,3 @@ resource "azurerm_subnet" "tf-sn-pub" {
   virtual_network_name  = "${azurerm_virtual_network.tf-vn.name}"
   address_prefix        = "${var.subnet_cidr_pub[count.index]}"
 }
-# Create as many Public Subnets as especified in the list passed
-resource "azurerm_subnet" "tf-sn-pri" {
-  count                 = "${length(var.subnet_cidr_pri)}"
-  name                  = "tf-sn-pri-${count.index + 1}"
-  resource_group_name   = "${var.resource_group_name}"
-  virtual_network_name  = "${azurerm_virtual_network.tf-vn.name}"
-  address_prefix        = "${var.subnet_cidr_pri[count.index]}"
-}
