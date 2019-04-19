@@ -30,7 +30,7 @@ resource "azurerm_network_interface" "tf-nic" {
   name                = "${var.prefix}-nic"
   location            = "${var.location}"
   resource_group_name = "${var.resource_group_name}"
-  # network_security_group_id = "${azurerm_network_security_group.tf-sg-ssh.id}"
+  network_security_group_id = "${azurerm_network_security_group.tf-sg-ssh.id}"
 
   ip_configuration {
     name                          = "testconfiguration1"
