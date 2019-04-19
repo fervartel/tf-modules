@@ -1,3 +1,3 @@
-output "subnets_pub" {
-    value = "${azurerm_subnet.tf-sn-pub.*.id}"
+output "subnets" {
+    value = "${azurerm_subnet.tf-sn.*.id}"
 }
