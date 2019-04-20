@@ -1,5 +1,5 @@
 resource "azurerm_public_ip" "vmss" {
-  name                         = "vmss-public-ip"
+  name                         = "tf-vmss-public-ip"
   location                     = "${var.location}"
   resource_group_name          = "${var.resource_group_name}"
   allocation_method            = "Static"
@@ -8,7 +8,7 @@ resource "azurerm_public_ip" "vmss" {
 }
 
 resource "azurerm_lb" "vmss" {
-  name                = "vmss-lb"
+  name                = "tf-vmss-lb"
   location            = "${var.location}"
   resource_group_name = "${var.resource_group_name}"
 
@@ -104,8 +104,73 @@ resource "azurerm_virtual_machine_scale_set" "vmss" {
   tags = "${var.tags}"
 }
 
+resource "azurerm_monitor_autoscale_setting" "vmss" {
+  name                = "tf-autoscaling-settings"
+  resource_group_name = "${var.resource_group_name}"
+  location            = "${var.location}"
+  target_resource_id  = "${azurerm_virtual_machine_scale_set.vmss.id}"
+
+  profile {
+    name = "defaultProfile"
+
+    capacity {
+      default = 2
+      minimum = 2
+      maximum = 4
+    }
+
+    rule {
+      metric_trigger {
+        metric_name        = "Percentage CPU"
+        metric_resource_id = "${azurerm_virtual_machine_scale_set.vmss.id}"
+        time_grain         = "PT1M"
+        statistic          = "Average"
+        time_window        = "PT5M"
+        time_aggregation   = "Average"
+        operator           = "GreaterThan"
+        threshold          = 75
+      }
+
+      scale_action {
+        direction = "Increase"
+        type      = "ChangeCount"
+        value     = "1"
+        cooldown  = "PT1M"
+      }
+    }
+
+    rule {
+      metric_trigger {
+        metric_name        = "Percentage CPU"
+        metric_resource_id = "${azurerm_virtual_machine_scale_set.vmss.id}"
+        time_grain         = "PT1M"
+        statistic          = "Average"
+        time_window        = "PT5M"
+        time_aggregation   = "Average"
+        operator           = "LessThan"
+        threshold          = 25
+      }
+
+      scale_action {
+        direction = "Decrease"
+        type      = "ChangeCount"
+        value     = "1"
+        cooldown  = "PT1M"
+      }
+    }
+  }
+
+  # notification {
+  #   email {
+  #     send_to_subscription_administrator    = true
+  #     send_to_subscription_co_administrator = true
+  #     custom_emails                         = ["admin@contoso.com"]
+  #   }
+  # }
+}
+
 resource "azurerm_public_ip" "jumpbox" {
-  name                         = "jumpbox-public-ip"
+  name                         = "tf-jumpbox-public-ip"
   location                     = "${var.location}"
   resource_group_name          = "${var.resource_group_name}"
   allocation_method            = "Static"
@@ -114,7 +179,7 @@ resource "azurerm_public_ip" "jumpbox" {
 }
 
 resource "azurerm_network_interface" "jumpbox" {
-  name                = "jumpbox-nic"
+  name                = "tf-jumpbox-nic"
   location            = "${var.location}"
   resource_group_name = "${var.resource_group_name}"
 
@@ -129,7 +194,7 @@ resource "azurerm_network_interface" "jumpbox" {
 }
 
 resource "azurerm_virtual_machine" "jumpbox" {
-  name                  = "jumpbox"
+  name                  = "tf-jumpbox"
   location              = "${var.location}"
   resource_group_name   = "${var.resource_group_name}"
   network_interface_ids = ["${azurerm_network_interface.jumpbox.id}"]
@@ -143,7 +208,7 @@ resource "azurerm_virtual_machine" "jumpbox" {
   }
 
   storage_os_disk {
-    name              = "jumpbox-osdisk"
+    name              = "tf-jumpbox-osdisk"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
