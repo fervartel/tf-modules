@@ -9,10 +9,14 @@ resource "google_compute_instance" "vm" {
   }
 
   network_interface {
-    # # A default network is created for all GCP projects
-    # network       = "default"
-    network = "${var.vpc}"
+    # network     = "${var.vpc}" # To use only if creating a VM using a vpc with 'auto_create_subnetworks = True'
+    subnetwork    = "${var.subnet}"
     access_config = {
+      // Ephemeral IP
     }
+  }
+
+    metadata {
+    sshKeys = "${var.ssh_user}:${file(var.ssh_pub_key_file)}"
   }
 }

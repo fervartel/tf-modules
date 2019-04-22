@@ -4,7 +4,9 @@ resource "google_compute_network" "vpc" {
 }
 
 resource "google_compute_subnetwork" "subnet" {
-  count         = "${length(var.subnet_cidr)}"
+  # count         = "${length(var.subnet_cidr)}"
+  # Evaluates if autocreates subnets flag is TRUE and skips the custom subnets creation
+  count         = "${var.auto_create_subnetworks == "True" ? 0 : length(var.subnet_cidr)}"
   name          = "tf-sn-${count.index + 1}"
   ip_cidr_range = "${var.subnet_cidr[count.index]}"
   region        = "${var.subnet_region}"
