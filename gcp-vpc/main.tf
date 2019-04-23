@@ -71,3 +71,15 @@ resource "google_compute_firewall" "rdp" {
   priority  = 65534
   source_ranges = ["0.0.0.0/0"]
 }
+
+resource "google_compute_firewall" "http" {
+  name    = "tf-allow-http"
+  network = "${google_compute_network.vpc.name}"
+
+  allow {
+    protocol  = "tcp"
+    ports     = ["80"]
+  }
+  priority  = 1000
+  source_ranges = ["0.0.0.0/0"]
+}
