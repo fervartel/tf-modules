@@ -10,7 +10,6 @@ resource "google_compute_instance_template" "main" {
   }
 
   network_interface {
-    # network = "default"
     subnetwork    = "${var.subnet}"
     access_config = {
       // Ephemeral IP
@@ -22,6 +21,10 @@ resource "google_compute_instance_template" "main" {
     sudo apt-get -y dist-upgrade
     sudo apt-get -y install nginx
     SCRIPT
+  
+  lifecycle {
+    create_before_destroy = true
+  }
 
   # service_account {
   #   scopes = ["userinfo-email", "compute-ro", "storage-ro"]
@@ -56,24 +59,26 @@ resource "google_compute_target_pool" "main" {
 resource "google_compute_region_instance_group_manager" "main" {
   name = "tf-igm"
   region = "${var.region}"
-  distribution_policy_zones  = ["${var.distribution_policy_zones}"]
-
+  distribution_policy_zones = ["${data.google_compute_zones.available.names}"]
   instance_template  = "${google_compute_instance_template.main.self_link}"
 
   target_pools       = ["${google_compute_target_pool.main.self_link}"]
-  # target_size  = 2
   base_instance_name = "tf-vm"
 }
 
-resource "google_compute_autoscaler" "main" {
+data "google_compute_zones" "available" {
+  project = "${var.project}"
+  region  = "${var.region}"
+}
+
+resource "google_compute_region_autoscaler" "main" {
   name   = "tf-autoscaler"
-  # zone   = "${var.zone}"
   target = "${google_compute_region_instance_group_manager.main.self_link}"
 
   autoscaling_policy {
     min_replicas    = "${var.min_replicas}"
     max_replicas    = "${var.max_replicas}"
-    cooldown_period = 60
+    cooldown_period = 120
 
     cpu_utilization {
       target = 0.5
