@@ -82,4 +82,5 @@ resource "google_compute_firewall" "http" {
   }
   priority  = 1000
   source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["http-server"]
 }

@@ -3,7 +3,7 @@ resource "google_compute_instance_template" "main" {
   machine_type   = "${var.instance_template_type}"
   can_ip_forward = false
 
-  # tags = ["foo", "bar"]
+  tags = ["http-server"]
 
   disk {
     source_image = "${data.google_compute_image.debian_9.self_link}"

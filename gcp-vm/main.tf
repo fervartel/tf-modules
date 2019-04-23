@@ -2,6 +2,8 @@ resource "google_compute_instance" "vm" {
   name         = "${var.name}"
   machine_type = "${var.machine_type}"
 
+  tags = ["http-server"]
+  
   boot_disk {
     initialize_params {
       image = "${var.image}"
@@ -9,7 +11,6 @@ resource "google_compute_instance" "vm" {
   }
 
   network_interface {
-    # network     = "${var.vpc}" # To use only if creating a VM using a vpc with 'auto_create_subnetworks = True'
     subnetwork    = "${var.subnet}"
     access_config = {
       // Ephemeral IP
