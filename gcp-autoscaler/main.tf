@@ -1,3 +1,4 @@
+# Template to create instances within instance group manager
 resource "google_compute_instance_template" "main" {
   name           = "tf-vm-template"
   machine_type   = "${var.instance_template_type}"
@@ -31,6 +32,7 @@ resource "google_compute_instance_template" "main" {
   # }
 }
 
+# Creates the Load Balancer Frontend configuration to enable external access for HTTP in port 80
 resource "google_compute_forwarding_rule" "main" {
   project               = "${var.project}"
   name                  = "tf-forwarding-rule"
@@ -39,6 +41,7 @@ resource "google_compute_forwarding_rule" "main" {
   port_range            = "80"
 }
 
+# Creates a Health check to be used by the load balancer
 resource "google_compute_http_health_check" "main" {
   project      = "${var.project}"
   name         = "tf-healthcheck"
@@ -46,6 +49,7 @@ resource "google_compute_http_health_check" "main" {
   port         = "80"
 }
 
+# Created the Load Balancer
 resource "google_compute_target_pool" "main" {
   name = "tf-target-pool"
   
@@ -56,6 +60,7 @@ resource "google_compute_target_pool" "main" {
   ]
 }
 
+# Creates a Regional (Multiple zones) Instance Group to be used by the Autoscaler
 resource "google_compute_region_instance_group_manager" "main" {
   name = "tf-igm"
   region = "${var.region}"
@@ -66,6 +71,7 @@ resource "google_compute_region_instance_group_manager" "main" {
   base_instance_name = "tf-vm"
 }
 
+# Creates a Regional (Multiple zones) Autoscaler which aims a 50% CPU utilization
 resource "google_compute_region_autoscaler" "main" {
   name   = "tf-autoscaler"
   target = "${google_compute_region_instance_group_manager.main.self_link}"
