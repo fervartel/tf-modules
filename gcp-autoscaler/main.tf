@@ -31,7 +31,7 @@ resource "google_compute_instance_template" "main" {
   # }
 }
 
-resource "google_compute_forwarding_rule" "default" {
+resource "google_compute_forwarding_rule" "main" {
   project               = "${var.project}"
   name                  = "tf-forwarding-rule"
   target                = "${google_compute_target_pool.main.self_link}"
@@ -39,7 +39,7 @@ resource "google_compute_forwarding_rule" "default" {
   port_range            = "80"
 }
 
-resource "google_compute_http_health_check" "default" {
+resource "google_compute_http_health_check" "main" {
   project      = "${var.project}"
   name         = "tf-healthcheck"
   request_path = "/"
@@ -52,7 +52,7 @@ resource "google_compute_target_pool" "main" {
   session_affinity = "NONE"
 
   health_checks = [
-  "${google_compute_http_health_check.default.name}",
+  "${google_compute_http_health_check.main.name}",
   ]
 }
 
@@ -64,11 +64,6 @@ resource "google_compute_region_instance_group_manager" "main" {
 
   target_pools       = ["${google_compute_target_pool.main.self_link}"]
   base_instance_name = "tf-vm"
-}
-
-data "google_compute_zones" "available" {
-  project = "${var.project}"
-  region  = "${var.region}"
 }
 
 resource "google_compute_region_autoscaler" "main" {
