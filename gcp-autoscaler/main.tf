@@ -49,7 +49,7 @@ resource "google_compute_http_health_check" "main" {
   port         = "80"
 }
 
-# Created the Load Balancer
+# Creates the Load Balancer
 resource "google_compute_target_pool" "main" {
   name = "tf-target-pool"
   
